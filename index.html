@@ -6,66 +6,810 @@
         <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="./resources/ol.css">
-        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
-        <link rel="stylesheet" href="./resources/qgis2web.css">
-<style>
-.search-layer {
-  top: 65px;
-  left: .5em;
-}
-.ol-touch .search-layer {
-  top: 80px;
-}
-</style>
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
         <style>
-        html, body {
-            background-color: #ffffff;
-        }
-        .ol-control button {
-            background-color: #f8f8f8 !important;
-            color: #000000 !important;
-            border-radius: 0px !important;
-        }
-        .ol-zoom, .geolocate, .gcd-gl-control .ol-control {
-            background-color: rgba(255,255,255,.4) !important;
-            padding: 3px !important;
-        }
-        .ol-scale-line {
-            background: none !important;
-        }
-        .ol-scale-line-inner {
-            border: 2px solid #f8f8f8 !important;
-            border-top: none !important;
-            background: rgba(255, 255, 255, 0.5) !important;
-            color: black !important;
-        }
-        </style>
-        <style>
-        #map {
-            width: 623px;
-            height: 806px;
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
         }
         </style>
         <title></title>
     </head>
     <body>
         <div id="map">
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-                <div id="popup-content"></div>
-            </div>
         </div>
-        <script src="resources/qgis2web_expressions.js"></script>
-        <script src="resources/polyfills.js"></script>
-        <script src="./resources/functions.js"></script>
-        <script src="./resources/ol.js"></script>
-        <script src="./resources/ol-layerswitcher.js"></script>
-        <script src="layers/tttm_hcm_1.js"></script><script src="layers/nha_hcm_2.js"></script>
-        <script src="styles/tttm_hcm_1_style.js"></script><script src="styles/nha_hcm_2_style.js"></script>
-        <script src="./layers/layers.js" type="text/javascript"></script> 
-        <script src="./resources/Autolinker.min.js"></script>
-        <script src="./resources/qgis2web.js"></script>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/tttm_hcm_1.js"></script>
+        <script src="data/nha_hcm_2.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_VietnamOSMBecaMaps_0');
+        map.getPane('pane_VietnamOSMBecaMaps_0').style.zIndex = 400;
+        var layer_VietnamOSMBecaMaps_0 = L.tileLayer('https://thuduc-maps.hcmgis.vn/thuducserver/gwc/service/wmts?layer=thuduc:thuduc_maps&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}', {
+            pane: 'pane_VietnamOSMBecaMaps_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+        });
+        layer_VietnamOSMBecaMaps_0;
+        map.addLayer(layer_VietnamOSMBecaMaps_0);
+        function pop_tttm_hcm_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">gid</th>\
+                        <td>' + (feature.properties['gid'] !== null ? autolinker.link(feature.properties['gid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">objectid</th>\
+                        <td>' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">id</th>\
+                        <td>' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_loai_dt</th>\
+                        <td>' + (feature.properties['dm_loai_dt'] !== null ? autolinker.link(feature.properties['dm_loai_dt'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ten</th>\
+                        <td>' + (feature.properties['ten'] !== null ? autolinker.link(feature.properties['ten'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dia_chi</th>\
+                        <td>' + (feature.properties['dia_chi'] !== null ? autolinker.link(feature.properties['dia_chi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_hang_id</th>\
+                        <td>' + (feature.properties['dm_hang_id'] !== null ? autolinker.link(feature.properties['dm_hang_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dc_dl</th>\
+                        <td>' + (feature.properties['dc_dl'] !== null ? autolinker.link(feature.properties['dc_dl'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">sl_sap</th>\
+                        <td>' + (feature.properties['sl_sap'] !== null ? autolinker.link(feature.properties['sl_sap'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_nganh_k</th>\
+                        <td>' + (feature.properties['dm_nganh_k'] !== null ? autolinker.link(feature.properties['dm_nganh_k'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_phuong_</th>\
+                        <td>' + (feature.properties['dm_phuong_'] !== null ? autolinker.link(feature.properties['dm_phuong_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_quan_id</th>\
+                        <td>' + (feature.properties['dm_quan_id'] !== null ? autolinker.link(feature.properties['dm_quan_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">bql_dt</th>\
+                        <td>' + (feature.properties['bql_dt'] !== null ? autolinker.link(feature.properties['bql_dt'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">bql_tb_hot</th>\
+                        <td>' + (feature.properties['bql_tb_hot'] !== null ? autolinker.link(feature.properties['bql_tb_hot'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">bql_tb_dt</th>\
+                        <td>' + (feature.properties['bql_tb_dt'] !== null ? autolinker.link(feature.properties['bql_tb_dt'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">updated_at</th>\
+                        <td>' + (feature.properties['updated_at'] !== null ? autolinker.link(feature.properties['updated_at'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">mo_ta</th>\
+                        <td>' + (feature.properties['mo_ta'] !== null ? autolinker.link(feature.properties['mo_ta'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_dinh_hu</th>\
+                        <td>' + (feature.properties['dm_dinh_hu'] !== null ? autolinker.link(feature.properties['dm_dinh_hu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">tg_hd</th>\
+                        <td>' + (feature.properties['tg_hd'] !== null ? autolinker.link(feature.properties['tg_hd'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_quan_te</th>\
+                        <td>' + (feature.properties['dm_quan_te'] !== null ? autolinker.link(feature.properties['dm_quan_te'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>chu_dau_tu</strong><br />' + (feature.properties['chu_dau_tu'] !== null ? autolinker.link(feature.properties['chu_dau_tu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">chu_quan</th>\
+                        <td>' + (feature.properties['chu_quan'] !== null ? autolinker.link(feature.properties['chu_quan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">he_thong</th>\
+                        <td>' + (feature.properties['he_thong'] !== null ? autolinker.link(feature.properties['he_thong'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dc_chinh</th>\
+                        <td>' + (feature.properties['dc_chinh'] !== null ? autolinker.link(feature.properties['dc_chinh'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_phuong1</th>\
+                        <td>' + (feature.properties['dm_phuong1'] !== null ? autolinker.link(feature.properties['dm_phuong1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">bql_tb_cv</th>\
+                        <td>' + (feature.properties['bql_tb_cv'] !== null ? autolinker.link(feature.properties['bql_tb_cv'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dien_tich</th>\
+                        <td>' + (feature.properties['dien_tich'] !== null ? autolinker.link(feature.properties['dien_tich'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">von_dau_tu</th>\
+                        <td>' + (feature.properties['von_dau_tu'] !== null ? autolinker.link(feature.properties['von_dau_tu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">danh_hieu</th>\
+                        <td>' + (feature.properties['danh_hieu'] !== null ? autolinker.link(feature.properties['danh_hieu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">sl_hang</th>\
+                        <td>' + (feature.properties['sl_hang'] !== null ? autolinker.link(feature.properties['sl_hang'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">metro</th>\
+                        <td>' + (feature.properties['metro'] !== null ? autolinker.link(feature.properties['metro'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">nuoc_ngoai</th>\
+                        <td>' + (feature.properties['nuoc_ngoai'] !== null ? autolinker.link(feature.properties['nuoc_ngoai'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">vanh_dai</th>\
+                        <td>' + (feature.properties['vanh_dai'] !== null ? autolinker.link(feature.properties['vanh_dai'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">cao_toc</th>\
+                        <td>' + (feature.properties['cao_toc'] !== null ? autolinker.link(feature.properties['cao_toc'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_hang_te</th>\
+                        <td>' + (feature.properties['dm_hang_te'] !== null ? autolinker.link(feature.properties['dm_hang_te'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_loai__1</th>\
+                        <td>' + (feature.properties['dm_loai__1'] !== null ? autolinker.link(feature.properties['dm_loai__1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_nganh_1</th>\
+                        <td>' + (feature.properties['dm_nganh_1'] !== null ? autolinker.link(feature.properties['dm_nganh_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">dm_dinh__1</th>\
+                        <td>' + (feature.properties['dm_dinh__1'] !== null ? autolinker.link(feature.properties['dm_dinh__1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_tttm_hcm_1_0() {
+            return {
+                pane: 'pane_tttm_hcm_1',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(145,82,45,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_tttm_hcm_1');
+        map.getPane('pane_tttm_hcm_1').style.zIndex = 401;
+        map.getPane('pane_tttm_hcm_1').style['mix-blend-mode'] = 'normal';
+        var layer_tttm_hcm_1 = new L.geoJson(json_tttm_hcm_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_tttm_hcm_1',
+            layerName: 'layer_tttm_hcm_1',
+            pane: 'pane_tttm_hcm_1',
+            onEachFeature: pop_tttm_hcm_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_tttm_hcm_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_tttm_hcm_1);
+        map.addLayer(layer_tttm_hcm_1);
+        function pop_nha_hcm_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">gid</th>\
+                        <td>' + (feature.properties['gid'] !== null ? autolinker.link(feature.properties['gid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">objectid</th>\
+                        <td>' + (feature.properties['objectid'] !== null ? autolinker.link(feature.properties['objectid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Loại nhà</th>\
+                        <td>' + (feature.properties['loai'] !== null ? autolinker.link(feature.properties['loai'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Tên công trình</th>\
+                        <td>' + (feature.properties['ten'] !== null ? autolinker.link(feature.properties['ten'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Tính Chất</th>\
+                        <td>' + (feature.properties['tinhchat'] !== null ? autolinker.link(feature.properties['tinhchat'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Số tầng</th>\
+                        <td>' + (feature.properties['so_tang'] !== null ? autolinker.link(feature.properties['so_tang'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">chieu_cao</th>\
+                        <td>' + (feature.properties['chieu_cao'] !== null ? autolinker.link(feature.properties['chieu_cao'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Mã hành chính</th>\
+                        <td>' + (feature.properties['ma_hc'] !== null ? autolinker.link(feature.properties['ma_hc'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Đối tượng nhà</th>\
+                        <td>' + (feature.properties['doi_tuong'] !== null ? autolinker.link(feature.properties['doi_tuong'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Diện tích</th>\
+                        <td>' + (feature.properties['st_area_sh'] !== null ? autolinker.link(feature.properties['st_area_sh'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">st_length_</th>\
+                        <td>' + (feature.properties['st_length_'] !== null ? autolinker.link(feature.properties['st_length_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">maphuong</th>\
+                        <td>' + (feature.properties['maphuong'] !== null ? autolinker.link(feature.properties['maphuong'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">maquan</th>\
+                        <td>' + (feature.properties['maquan'] !== null ? autolinker.link(feature.properties['maquan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_nha_hcm_2_0() {
+            return {
+                pane: 'pane_nha_hcm_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(133,182,111,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_nha_hcm_2');
+        map.getPane('pane_nha_hcm_2').style.zIndex = 402;
+        map.getPane('pane_nha_hcm_2').style['mix-blend-mode'] = 'normal';
+        var layer_nha_hcm_2 = new L.geoJson(json_nha_hcm_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_nha_hcm_2',
+            layerName: 'layer_nha_hcm_2',
+            pane: 'pane_nha_hcm_2',
+            onEachFeature: pop_nha_hcm_2,
+            style: style_nha_hcm_2_0,
+        });
+        bounds_group.addLayer(layer_nha_hcm_2);
+        map.addLayer(layer_nha_hcm_2);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/nha_hcm_2.png" /> nha_hcm': layer_nha_hcm_2,'<img src="legend/tttm_hcm_1.png" /> tttm_hcm': layer_tttm_hcm_1,"Vietnam OSM BecaMaps": layer_VietnamOSMBecaMaps_0,}).addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"nuoc_ngoai": "int","so_tang": "real","loai": "real","dm_quan_te": "str","ma_hc": "str","tinhchat": "str","ten": "str","von_dau_tu": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_nuoc_ngoai = document.createElement("div");
+            div_nuoc_ngoai.id = "div_nuoc_ngoai";
+            div_nuoc_ngoai.className = "slider";
+            document.getElementById("menu").appendChild(div_nuoc_ngoai);
+            var lab_nuoc_ngoai = document.createElement('div');
+            lab_nuoc_ngoai.innerHTML  = 'nuoc_ngoai: <span id="val_nuoc_ngoai"></span>';
+            lab_nuoc_ngoai.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_nuoc_ngoai);
+            var reset_nuoc_ngoai = document.createElement('div');
+            reset_nuoc_ngoai.innerHTML = 'clear filter';
+            reset_nuoc_ngoai.className = 'filterlabel';
+            lab_nuoc_ngoai.className = 'filterlabel';
+            reset_nuoc_ngoai.onclick = function() {
+                sel_nuoc_ngoai.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_nuoc_ngoai);
+            var sel_nuoc_ngoai = document.getElementById('div_nuoc_ngoai');
+            noUiSlider.create(sel_nuoc_ngoai, {
+                connect: true,
+                start: [0, 1],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 0,
+                max: 1
+                }
+            });
+            sel_nuoc_ngoai.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_nuoc_ngoai = document.getElementById('val_nuoc_ngoai');
+            val_nuoc_ngoai.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_so_tang = document.createElement("div");
+            div_so_tang.id = "div_so_tang";
+            div_so_tang.className = "slider";
+            document.getElementById("menu").appendChild(div_so_tang);
+            var lab_so_tang = document.createElement('div');
+            lab_so_tang.innerHTML  = 'so_tang: <span id="val_so_tang"></span>';
+            lab_so_tang.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_so_tang);
+            var reset_so_tang = document.createElement('div');
+            reset_so_tang.innerHTML = 'clear filter';
+            reset_so_tang.className = 'filterlabel';
+            lab_so_tang.className = 'filterlabel';
+            reset_so_tang.onclick = function() {
+                sel_so_tang.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_so_tang);
+            var sel_so_tang = document.getElementById('div_so_tang');
+            noUiSlider.create(sel_so_tang, {
+                connect: true,
+                start: [1.0, 36.0],
+                range: {
+                min: 1.0,
+                max: 36.0
+                }
+            });
+            sel_so_tang.noUiSlider.on('update', function (values) {
+            val_so_tang = document.getElementById('val_so_tang');
+            val_so_tang.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_loai = document.createElement("div");
+            div_loai.id = "div_loai";
+            div_loai.className = "slider";
+            document.getElementById("menu").appendChild(div_loai);
+            var lab_loai = document.createElement('div');
+            lab_loai.innerHTML  = 'loai: <span id="val_loai"></span>';
+            lab_loai.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_loai);
+            var reset_loai = document.createElement('div');
+            reset_loai.innerHTML = 'clear filter';
+            reset_loai.className = 'filterlabel';
+            lab_loai.className = 'filterlabel';
+            reset_loai.onclick = function() {
+                sel_loai.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_loai);
+            var sel_loai = document.getElementById('div_loai');
+            noUiSlider.create(sel_loai, {
+                connect: true,
+                start: [502.0, 503.0],
+                range: {
+                min: 502.0,
+                max: 503.0
+                }
+            });
+            sel_loai.noUiSlider.on('update', function (values) {
+            val_loai = document.getElementById('val_loai');
+            val_loai.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_dm_quan_te = document.createElement('div');
+            div_dm_quan_te.id = "div_dm_quan_te";
+            div_dm_quan_te.className= "filterselect";
+            document.getElementById("menu").appendChild(div_dm_quan_te);
+            sel_dm_quan_te = document.createElement('select');
+            sel_dm_quan_te.multiple = true;
+            sel_dm_quan_te.size = 10;
+            sel_dm_quan_te.id = "sel_dm_quan_te";
+            var dm_quan_te_options_str = "<option value='' unselected></option>";
+            sel_dm_quan_te.onchange = function(){filterFunc()};
+            dm_quan_te_options_str  += '<option value="NULL">NULL</option>';
+            dm_quan_te_options_str  += '<option value="Huyện Bình Chánh">Huyện Bình Chánh</option>';
+            dm_quan_te_options_str  += '<option value="Quận 1">Quận 1</option>';
+            dm_quan_te_options_str  += '<option value="Quận 10">Quận 10</option>';
+            dm_quan_te_options_str  += '<option value="Quận 11">Quận 11</option>';
+            dm_quan_te_options_str  += '<option value="Quận 2">Quận 2</option>';
+            dm_quan_te_options_str  += '<option value="Quận 5">Quận 5</option>';
+            dm_quan_te_options_str  += '<option value="Quận 7">Quận 7</option>';
+            dm_quan_te_options_str  += '<option value="Quận Bình Thạnh">Quận Bình Thạnh</option>';
+            dm_quan_te_options_str  += '<option value="Quận Gò Vấp">Quận Gò Vấp</option>';
+            dm_quan_te_options_str  += '<option value="Quận Thủ Đức">Quận Thủ Đức</option>';
+            dm_quan_te_options_str  += '<option value="Quận Tân Bình">Quận Tân Bình</option>';
+            dm_quan_te_options_str  += '<option value="Quận Tân Phú">Quận Tân Phú</option>';
+            sel_dm_quan_te.innerHTML = dm_quan_te_options_str;
+            div_dm_quan_te.appendChild(sel_dm_quan_te);
+            var lab_dm_quan_te = document.createElement('div');
+            lab_dm_quan_te.innerHTML = 'dm_quan_te';
+            lab_dm_quan_te.className = 'filterlabel';
+            div_dm_quan_te.appendChild(lab_dm_quan_te);
+            var reset_dm_quan_te = document.createElement('div');
+            reset_dm_quan_te.innerHTML = 'clear filter';
+            reset_dm_quan_te.className = 'filterlabel';
+            reset_dm_quan_te.onclick = function() {
+                var options = document.getElementById("sel_dm_quan_te").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_dm_quan_te.appendChild(reset_dm_quan_te);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_ma_hc = document.createElement('div');
+            div_ma_hc.id = "div_ma_hc";
+            div_ma_hc.className= "filterselect";
+            document.getElementById("menu").appendChild(div_ma_hc);
+            sel_ma_hc = document.createElement('select');
+            sel_ma_hc.multiple = true;
+            sel_ma_hc.size = 10;
+            sel_ma_hc.id = "sel_ma_hc";
+            var ma_hc_options_str = "<option value='' unselected></option>";
+            sel_ma_hc.onchange = function(){filterFunc()};
+            ma_hc_options_str  += '<option value="NULL">NULL</option>';
+            ma_hc_options_str  += '<option value="760">760</option>';
+            ma_hc_options_str  += '<option value="762">762</option>';
+            ma_hc_options_str  += '<option value="764">764</option>';
+            ma_hc_options_str  += '<option value="765">765</option>';
+            ma_hc_options_str  += '<option value="766">766</option>';
+            ma_hc_options_str  += '<option value="767">767</option>';
+            ma_hc_options_str  += '<option value="768">768</option>';
+            ma_hc_options_str  += '<option value="772">772</option>';
+            ma_hc_options_str  += '<option value="774">774</option>';
+            ma_hc_options_str  += '<option value="775">775</option>';
+            ma_hc_options_str  += '<option value="776">776</option>';
+            ma_hc_options_str  += '<option value="777">777</option>';
+            ma_hc_options_str  += '<option value="785">785</option>';
+            sel_ma_hc.innerHTML = ma_hc_options_str;
+            div_ma_hc.appendChild(sel_ma_hc);
+            var lab_ma_hc = document.createElement('div');
+            lab_ma_hc.innerHTML = 'ma_hc';
+            lab_ma_hc.className = 'filterlabel';
+            div_ma_hc.appendChild(lab_ma_hc);
+            var reset_ma_hc = document.createElement('div');
+            reset_ma_hc.innerHTML = 'clear filter';
+            reset_ma_hc.className = 'filterlabel';
+            reset_ma_hc.onclick = function() {
+                var options = document.getElementById("sel_ma_hc").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_ma_hc.appendChild(reset_ma_hc);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_tinhchat = document.createElement('div');
+            div_tinhchat.id = "div_tinhchat";
+            div_tinhchat.className= "filterselect";
+            document.getElementById("menu").appendChild(div_tinhchat);
+            sel_tinhchat = document.createElement('select');
+            sel_tinhchat.multiple = true;
+            sel_tinhchat.size = 6;
+            sel_tinhchat.id = "sel_tinhchat";
+            var tinhchat_options_str = "<option value='' unselected></option>";
+            sel_tinhchat.onchange = function(){filterFunc()};
+            tinhchat_options_str  += '<option value="NULL">NULL</option>';
+            tinhchat_options_str  += '<option value="Chịu lửa">Chịu lửa</option>';
+            tinhchat_options_str  += '<option value="Kém Chịu">Kém Chịu</option>';
+            tinhchat_options_str  += '<option value="Kém chịu">Kém chịu</option>';
+            tinhchat_options_str  += '<option value="Nhà Khác">Nhà Khác</option>';
+            tinhchat_options_str  += '<option value="Nhà khác">Nhà khác</option>';
+            sel_tinhchat.innerHTML = tinhchat_options_str;
+            div_tinhchat.appendChild(sel_tinhchat);
+            var lab_tinhchat = document.createElement('div');
+            lab_tinhchat.innerHTML = 'tinhchat';
+            lab_tinhchat.className = 'filterlabel';
+            div_tinhchat.appendChild(lab_tinhchat);
+            var reset_tinhchat = document.createElement('div');
+            reset_tinhchat.innerHTML = 'clear filter';
+            reset_tinhchat.className = 'filterlabel';
+            reset_tinhchat.onclick = function() {
+                var options = document.getElementById("sel_tinhchat").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_tinhchat.appendChild(reset_tinhchat);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_ten = document.createElement('div');
+            div_ten.id = "div_ten";
+            div_ten.className= "filterselect";
+            document.getElementById("menu").appendChild(div_ten);
+            sel_ten = document.createElement('select');
+            sel_ten.multiple = true;
+            sel_ten.size = 10;
+            sel_ten.id = "sel_ten";
+            var ten_options_str = "<option value='' unselected></option>";
+            sel_ten.onchange = function(){filterFunc()};
+            ten_options_str  += '<option value="NULL">NULL</option>';
+            ten_options_str  += '<option value="Bitexco">Bitexco</option>';
+            ten_options_str  += '<option value="Chợ Hoà Bình">Chợ Hoà Bình</option>';
+            ten_options_str  += '<option value="TTMS Aeon Mall">TTMS Aeon Mall</option>';
+            ten_options_str  += '<option value="TTTM An Đông Plaza">TTTM An Đông Plaza</option>';
+            ten_options_str  += '<option value="TTTM Crescent Mall">TTTM Crescent Mall</option>';
+            ten_options_str  += '<option value="TTTM Diamond">TTTM Diamond</option>';
+            ten_options_str  += '<option value="TTTM Dịch vụ Siêu thị Tafoco">TTTM Dịch vụ Siêu thị Tafoco</option>';
+            ten_options_str  += '<option value="TTTM Emart Gò Vấp">TTTM Emart Gò Vấp</option>';
+            ten_options_str  += '<option value="TTTM Kum Ho">TTTM Kum Ho</option>';
+            ten_options_str  += '<option value="TTTM Lotte Phú Thọ">TTTM Lotte Phú Thọ</option>';
+            ten_options_str  += '<option value="TTTM Lotte quận 7">TTTM Lotte quận 7</option>';
+            ten_options_str  += '<option value="TTTM Maximark 3/2">TTTM Maximark 3/2</option>';
+            ten_options_str  += '<option value="TTTM Maximark Cộng Hòa">TTTM Maximark Cộng Hòa</option>';
+            ten_options_str  += '<option value="TTTM Now Zone">TTTM Now Zone</option>';
+            ten_options_str  += '<option value="TTTM Parkson Cantavil">TTTM Parkson Cantavil</option>';
+            ten_options_str  += '<option value="TTTM Parkson Hùng Vương">TTTM Parkson Hùng Vương</option>';
+            ten_options_str  += '<option value="TTTM Parkson Lê Đại Hành">TTTM Parkson Lê Đại Hành</option>';
+            ten_options_str  += '<option value="TTTM Parkson Paragon">TTTM Parkson Paragon</option>';
+            ten_options_str  += '<option value="TTTM Parkson Sài Gòn Tourits">TTTM Parkson Sài Gòn Tourits</option>';
+            ten_options_str  += '<option value="TTTM Parkson Trường Sơn">TTTM Parkson Trường Sơn</option>';
+            ten_options_str  += '<option value="TTTM Pearl Plaza">TTTM Pearl Plaza</option>';
+            ten_options_str  += '<option value="TTTM Pico Plaza">TTTM Pico Plaza</option>';
+            ten_options_str  += '<option value="TTTM SC Vivo City">TTTM SC Vivo City</option>';
+            ten_options_str  += '<option value="TTTM Saigon Centre">TTTM Saigon Centre</option>';
+            ten_options_str  += '<option value="TTTM Superbowl">TTTM Superbowl</option>';
+            ten_options_str  += '<option value="TTTM Sài Gòn Square 1">TTTM Sài Gòn Square 1</option>';
+            ten_options_str  += '<option value="TTTM Takashimaya (saigon centre)">TTTM Takashimaya (saigon centre)</option>';
+            ten_options_str  += '<option value="TTTM Thuận Kiều Plaza">TTTM Thuận Kiều Plaza</option>';
+            ten_options_str  += '<option value="TTTM Vincom A (UnionSquare)">TTTM Vincom A (UnionSquare)</option>';
+            ten_options_str  += '<option value="TTTM Vincom Center Đồng Khởi">TTTM Vincom Center Đồng Khởi</option>';
+            ten_options_str  += '<option value="TTTM Vincom Mega Mall Thảo Điền">TTTM Vincom Mega Mall Thảo Điền</option>';
+            ten_options_str  += '<option value="TTTM Zen Plaza">TTTM Zen Plaza</option>';
+            ten_options_str  += '<option value="TTTM chuyên doanh dược phẩm 10">TTTM chuyên doanh dược phẩm 10</option>';
+            ten_options_str  += '<option value="Times Square">Times Square</option>';
+            ten_options_str  += '<option value="Trung tâm KD DV Tổng hợp & Vật liệu xây dựng CMC">Trung tâm KD DV Tổng hợp & Vật liệu xây dựng CMC</option>';
+            ten_options_str  += '<option value="Trung tâm Thương mại Satra Đường Phạm Hùng">Trung tâm Thương mại Satra Đường Phạm Hùng</option>';
+            ten_options_str  += '<option value="Tân An Đông Sài Gòn">Tân An Đông Sài Gòn</option>';
+            ten_options_str  += '<option value="Vincom Plaza Gò Vấp">Vincom Plaza Gò Vấp</option>';
+            ten_options_str  += '<option value="Vincom Quang Trung">Vincom Quang Trung</option>';
+            ten_options_str  += '<option value="Vincom Thủ Đức">Vincom Thủ Đức</option>';
+            sel_ten.innerHTML = ten_options_str;
+            div_ten.appendChild(sel_ten);
+            var lab_ten = document.createElement('div');
+            lab_ten.innerHTML = 'ten';
+            lab_ten.className = 'filterlabel';
+            div_ten.appendChild(lab_ten);
+            var reset_ten = document.createElement('div');
+            reset_ten.innerHTML = 'clear filter';
+            reset_ten.className = 'filterlabel';
+            reset_ten.onclick = function() {
+                var options = document.getElementById("sel_ten").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_ten.appendChild(reset_ten);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_von_dau_tu = document.createElement('div');
+            div_von_dau_tu.id = "div_von_dau_tu";
+            div_von_dau_tu.className= "filterselect";
+            document.getElementById("menu").appendChild(div_von_dau_tu);
+            sel_von_dau_tu = document.createElement('select');
+            sel_von_dau_tu.multiple = true;
+            sel_von_dau_tu.size = 10;
+            sel_von_dau_tu.id = "sel_von_dau_tu";
+            var von_dau_tu_options_str = "<option value='' unselected></option>";
+            sel_von_dau_tu.onchange = function(){filterFunc()};
+            von_dau_tu_options_str  += '<option value="NULL">NULL</option>';
+            von_dau_tu_options_str  += '<option value="1.203">1.203</option>';
+            von_dau_tu_options_str  += '<option value="1.26">1.26</option>';
+            von_dau_tu_options_str  += '<option value="1.296">1.296</option>';
+            von_dau_tu_options_str  += '<option value="1.538">1.538</option>';
+            von_dau_tu_options_str  += '<option value="1.6">1.6</option>';
+            von_dau_tu_options_str  += '<option value="1.82">1.82</option>';
+            von_dau_tu_options_str  += '<option value="1.9">1.9</option>';
+            von_dau_tu_options_str  += '<option value="1.926">1.926</option>';
+            von_dau_tu_options_str  += '<option value="120">120</option>';
+            von_dau_tu_options_str  += '<option value="126">126</option>';
+            von_dau_tu_options_str  += '<option value="146">146</option>';
+            von_dau_tu_options_str  += '<option value="166">166</option>';
+            von_dau_tu_options_str  += '<option value="167">167</option>';
+            von_dau_tu_options_str  += '<option value="2">2</option>';
+            von_dau_tu_options_str  += '<option value="2.503">2.503</option>';
+            von_dau_tu_options_str  += '<option value="2.753">2.753</option>';
+            von_dau_tu_options_str  += '<option value="200">200</option>';
+            von_dau_tu_options_str  += '<option value="208">208</option>';
+            von_dau_tu_options_str  += '<option value="223">223</option>';
+            von_dau_tu_options_str  += '<option value="350">350</option>';
+            von_dau_tu_options_str  += '<option value="4.124">4.124</option>';
+            von_dau_tu_options_str  += '<option value="4.136">4.136</option>';
+            von_dau_tu_options_str  += '<option value="400">400</option>';
+            von_dau_tu_options_str  += '<option value="483">483</option>';
+            von_dau_tu_options_str  += '<option value="49">49</option>';
+            von_dau_tu_options_str  += '<option value="50">50</option>';
+            von_dau_tu_options_str  += '<option value="500">500</option>';
+            von_dau_tu_options_str  += '<option value="52">52</option>';
+            von_dau_tu_options_str  += '<option value="550">550</option>';
+            von_dau_tu_options_str  += '<option value="6">6</option>';
+            von_dau_tu_options_str  += '<option value="650">650</option>';
+            von_dau_tu_options_str  += '<option value="71.2">71.2</option>';
+            von_dau_tu_options_str  += '<option value="72">72</option>';
+            sel_von_dau_tu.innerHTML = von_dau_tu_options_str;
+            div_von_dau_tu.appendChild(sel_von_dau_tu);
+            var lab_von_dau_tu = document.createElement('div');
+            lab_von_dau_tu.innerHTML = 'von_dau_tu';
+            lab_von_dau_tu.className = 'filterlabel';
+            div_von_dau_tu.appendChild(lab_von_dau_tu);
+            var reset_von_dau_tu = document.createElement('div');
+            reset_von_dau_tu.innerHTML = 'clear filter';
+            reset_von_dau_tu.className = 'filterlabel';
+            reset_von_dau_tu.onclick = function() {
+                var options = document.getElementById("sel_von_dau_tu").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_von_dau_tu.appendChild(reset_von_dau_tu);
+        </script>
     </body>
 </html>
